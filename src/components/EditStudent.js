@@ -1,81 +1,75 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import {SERVER_URL} from '../constants'
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 
-const EditStudent = ({ student, onEdit, onClose }) => {
-  const [editedStudent, setEditedStudent] = useState({ ...student });
+const EditStudent = (props)  => {
 
-  useEffect(() => {
-    setEditedStudent({ ...student });
-  }, [student]);
+    const [open, setOpen] = useState(false);
+    const [editMessage, setEditMessage] = useState('');
+    const [student, setStudent] = useState(props.student);
 
-  const InputChange = (event) => {
-    const { name, value } = event.target;
-    setEditedStudent({
-      ...editedStudent,
-      [name]: value,
-    });
-  };
+    /*
+     *  dialog for edit student
+     */
+    const editOpen = (event) => {
+        setOpen(true);
+        setEditMessage('');
+    };
 
-  const Submit = () => {
-    fetch(`http://localhost:8080/students/${editedStudent.studentId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(editedStudent),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((updatedStudent) => {
-        onEdit(updatedStudent);
-        onClose();
-      })
-      .catch((error) => console.error('Error updating student:', error));
-  };
+    const editClose = () => {
+        setOpen(false);
+        props.onClose();
+    };
 
-  return (
-    <Dialog open={true} onClose={onClose}>
-      <DialogTitle>Edit Student</DialogTitle>
-      <DialogContent>
+    const editChange = (event) => {
+        setStudent({...student,  [event.target.name]:event.target.value})
+    }
+
+    const editSave = () => {
+        console.log("editStudent "+JSON.stringify(student));
+        fetch(`${SERVER_URL}/student/${student.studentId}`, 
+            {  
+            method: 'PUT', 
+            headers: { 'Content-Type': 'application/json', }, 
+            body: JSON.stringify(student)
+            } 
+        )
+        .then((response) => {
+            if (response.ok) return; 
+            else return response.json(); 
+        })
+        .then((data) => {
+            if (data) {
+                if (data.message) setEditMessage('Student not saved. '+data.message);
+                else setEditMessage('Student not saved.');
+            } else setEditMessage('Student saved.');
+        })
+        .catch((err) =>  { setEditMessage('Error. '+err) } );
+    }
+
+    return (
         <div>
-          <label htmlFor="name">Name:</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={editedStudent.name || ""}
-            onChange={InputChange}
-          />
-        </div>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={editedStudent.email || ""}
-            onChange={InputChange}
-          />
-        </div>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={Submit} color="primary">
-          Save
-        </Button>
-        <Button onClick={onClose} color="secondary">
-          Cancel
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
+        <button type="button" margin="auto" onClick={editOpen}>Edit</button>
+        <Dialog open={open} >
+            <DialogTitle>Edit Student</DialogTitle>
+            <DialogContent  style={{paddingTop: 20}} >
+                <h4>{editMessage}</h4>
+                <TextField fullWidth label="student id" name="studentId" value={student.studentId} InputProps={{readOnly: true, }}/>
+                <TextField autoFocus fullWidth label="name" name="name" value={student.name} onChange={editChange}  /> 
+                <TextField fullWidth label="email" name="email" value={student.email} onChange={editChange}  /> 
+            </DialogContent>
+            <DialogActions>
+                <Button color="secondary" onClick={editClose}>Close</Button>
+                <Button color="primary" onClick={editSave}>Save</Button>
+            </DialogActions>
+        </Dialog> 
+        </div>                       
+    )
+}
 
 export default EditStudent;

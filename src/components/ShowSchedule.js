@@ -26,7 +26,7 @@ const ShowSchedule = () => {
     const [message, setMessage] = useState(' ');  // status message
 
     useEffect(() => {
-        // called once after intial render
+        // call when termId is changed.
         fetchCourses(termId);
         }, [termId]);
 
@@ -74,11 +74,11 @@ const ShowSchedule = () => {
   /* 
    *   drop course
    */ 
-    const dropCourse = (event) => {
+    const dropCourse = (idx) => {
         setMessage('');
-        const row_id = event.target.parentNode.parentNode.rowIndex - 1;
-        console.log("drop course "+row_id);
-        const enrollment_id = courses[row_id].id;
+        //const row_id = event.target.parentNode.parentNode.rowIndex - 1;
+        console.log("drop course "+idx);
+        const enrollment_id = courses[idx].id;
         
         if (window.confirm('Are you sure you want to drop the course?')) {
             fetch(`${SERVER_URL}/schedule/${enrollment_id}`,
@@ -122,20 +122,20 @@ const ShowSchedule = () => {
                 <table className="Center"> 
                     <thead>
                     <tr>
-                        {headers.map((s, idx) => (<th key={idx}>{s}</th>))}
+                        {headers.map((h, idx) => (<th key={idx}>{h}</th>))}
                     </tr>
                     </thead>
                     <tbody>
-                    {courses.map((row,idx) => (
+                    {courses.map((e,idx) => (
                             <tr key={idx}>
-                            <td>{row.courseId}</td>
-                            <td>{row.section}</td>
-                            <td>{row.title}</td>
-                            <td>{row.times}</td>
-                            <td>{row.building}</td>
-                            <td>{row.room}</td>
-                            <td>{row.grade}</td>
-                            <td><button type="button" margin="auto" onClick={dropCourse}>Drop</button></td>
+                            <td>{e.courseId}</td>
+                            <td>{e.section}</td>
+                            <td>{e.title}</td>
+                            <td>{e.times}</td>
+                            <td>{e.building}</td>
+                            <td>{e.room}</td>
+                            <td>{e.grade}</td>
+                            <td><button type="button" margin="auto" onClick={() => dropCourse(idx)}>Drop</button></td>
                             </tr>
                         ))}
                     </tbody>
