@@ -23,15 +23,15 @@ function StudentHome( ) {
       <table className="Center"> 
         <thead>
           <tr>
-            {headers.map((title, idx) => (<th key={idx}>{title}</th>))}
+            {headers.map((h, idx) => (<th key={idx}>{h}</th>))}
           </tr>
         </thead>
         <tbody>
-          {SEMESTERS.map((row,idx) => (
+          {SEMESTERS.map((t,idx) => (
             <tr key={idx}>
               <td><input type="radio"  name="term" onClick={onRadioClick}/></td>
-              <td>{row.year}</td>
-              <td>{row.semester}</td>
+              <td>{t.year}</td>
+              <td>{t.semester}</td>
             </tr>
           ))}
         </tbody>
